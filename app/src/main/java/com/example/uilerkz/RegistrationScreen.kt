@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
@@ -152,26 +153,24 @@ fun RegistrationScreen() {
             Button(
                 onClick = {
 
-            },
-                colors = ButtonColors(
+                },
+                colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF888888),
                     contentColor = Color(0xFF000000),
                     disabledContainerColor = Color(0xFFE7E7E5),
                     disabledContentColor = Color(0xFFE7E7E5)
                 ),
                 modifier = Modifier.width(148.dp).height(33.dp)
-            ) {
+            ){
                 Text(
-                    text = "Registrate",
+                    text = "Log in",
                     style = TextStyle(
                         fontSize = 14.sp,
                         lineHeight = 22.sp,
-//                        fontFamily = FontFamily(Font(R.font.space_grotesk)),
                         fontWeight = FontWeight(400),
                         color = Color(0xFFFFFFFF),
                         textAlign = TextAlign.Center,
-                    ),
-
+                    )
                 )
             }
         }

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -123,16 +124,15 @@ fun LoginScreen() {
             }
             Spacer(Modifier.height(50.dp))
             Button(
-                onClick = {
-
-                },
-                colors = ButtonColors(
+                onClick = { },
+                colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF888888),
                     contentColor = Color(0xFF000000),
                     disabledContainerColor = Color(0xFFE7E7E5),
                     disabledContentColor = Color(0xFFE7E7E5)
                 ),
-                modifier = Modifier.width(148.dp)
+                modifier = Modifier
+                    .width(148.dp)
                     .height(33.dp)
             ) {
                 Text(
@@ -140,7 +140,6 @@ fun LoginScreen() {
                     style = TextStyle(
                         fontSize = 14.sp,
                         lineHeight = 22.sp,
-//                        fontFamily = FontFamily(Font(R.font.space_grotesk)),
                         fontWeight = FontWeight(400),
                         color = Color(0xFFFFFFFF),
                         textAlign = TextAlign.Center,
@@ -148,27 +147,31 @@ fun LoginScreen() {
                 )
             }
 
-        }
-        Spacer(Modifier.height(30.dp))
-        Column (modifier = Modifier.clickable {  },
-            horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = "Register",
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    lineHeight = 22.sp,
+            Spacer(Modifier.height(30.dp))
+            Column(
+                modifier = Modifier.clickable { },
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Register",
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        lineHeight = 22.sp,
 //                    fontFamily = FontFamily(Font(R.font.space_grotesk)),
-                    fontWeight = FontWeight(400),
-                    color = Color(0xFF000000),
-                    textAlign = TextAlign.Center,
+                        fontWeight = FontWeight(400),
+                        color = Color(0xFF000000),
+                        textAlign = TextAlign.Center,
+                    )
                 )
-            )
-            Spacer(Modifier.height(7.dp))
-            Box(Modifier
-                .padding(0.dp)
-                .width(106.04244.dp)
-                .height(1.dp)
-                .background(color = Color(0xFF000000)))
+                Spacer(Modifier.height(7.dp))
+                Box(
+                    Modifier
+                        .padding(0.dp)
+                        .width(106.04244.dp)
+                        .height(1.dp)
+                        .background(color = Color(0xFF000000))
+                )
+            }
         }
     }
 }
