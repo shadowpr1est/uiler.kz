@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -25,8 +28,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,6 +42,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 @Preview(showBackground = true)
 fun LoginScreen() {
+
     Column(
         modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -74,7 +82,7 @@ fun LoginScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Column {
+            Column(Modifier.fillMaxWidth().padding(start = 50.dp,top=30.dp, end = 50.dp)) {
                 var mail by remember { mutableStateOf("") }
                 Text(
                     text = "Email",
@@ -89,17 +97,23 @@ fun LoginScreen() {
 
                     )
                 Spacer(Modifier.height(10.dp))
-                TextField(
+                BasicTextField(
                     value = mail,
                     onValueChange = {
                         mail = it
                     },
-
-                    modifier = Modifier.height(20.dp)
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().height(23.dp)
                 )
+                Box(Modifier
+                    .padding(0.dp)
+                    .fillMaxWidth()
+                    .height(1.5.dp)
+                    .background(color = Color(0xFF000000)))
             }
-            Spacer(Modifier.height(30.dp))
-            Column {
+            Spacer(Modifier.height(40.dp))
+            Column(Modifier.fillMaxWidth().padding(start = 50.dp, end = 50.dp),
+                verticalArrangement = Arrangement.Center) {
                 var password by remember { mutableStateOf("") }
                 Text(
                     text = "Password",
@@ -114,13 +128,21 @@ fun LoginScreen() {
 
                     )
                 Spacer(Modifier.height(10.dp))
-                TextField(
+                BasicTextField(
                     value = password,
                     onValueChange = {
                         password = it
                     },
-                    modifier = Modifier.height(20.dp),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().height(23.dp),
+                    visualTransformation = PasswordVisualTransformation()
+
                 )
+                Box(Modifier
+                    .padding(0.dp)
+                    .fillMaxWidth()
+                    .height(1.5.dp)
+                    .background(color = Color(0xFF000000)))
             }
             Spacer(Modifier.height(50.dp))
             Button(
@@ -147,31 +169,7 @@ fun LoginScreen() {
                 )
             }
 
-            Spacer(Modifier.height(30.dp))
-            Column(
-                modifier = Modifier.clickable { },
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Register",
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        lineHeight = 22.sp,
-//                    fontFamily = FontFamily(Font(R.font.space_grotesk)),
-                        fontWeight = FontWeight(400),
-                        color = Color(0xFF000000),
-                        textAlign = TextAlign.Center,
-                    )
-                )
-                Spacer(Modifier.height(7.dp))
-                Box(
-                    Modifier
-                        .padding(0.dp)
-                        .width(106.04244.dp)
-                        .height(1.dp)
-                        .background(color = Color(0xFF000000))
-                )
-            }
         }
     }
 }
+

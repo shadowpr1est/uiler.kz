@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "123703089066",
+    "project_id": "uiler-kz",
+    "storage_bucket": "uiler-kz.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:123703089066:android:d258206f5077c210717dd3",
+        "android_client_info": {
+          "package_name": "com.example.uilerkz"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxACYteWFVxwZFr1Pizk4Ce74kyBJ45yk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

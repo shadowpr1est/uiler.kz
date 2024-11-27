@@ -1,5 +1,6 @@
 package com.example.uilerkz
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -37,6 +39,9 @@ import androidx.compose.ui.unit.sp
 @Composable
 @Preview(showBackground = true)
 fun RegistrationScreen() {
+    var mail by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     Column(
         modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -76,8 +81,8 @@ fun RegistrationScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Column {
-                var mail by remember { mutableStateOf("") }
+
+            Column(modifier = Modifier.padding(start = 50.dp, end = 50.dp , top = 20.dp)) {
                 Text(
                     text = "Email",
                     style = TextStyle(
@@ -91,18 +96,23 @@ fun RegistrationScreen() {
 
                     )
                 Spacer(Modifier.height(10.dp))
-                TextField(
+                BasicTextField(
                     value = mail,
                     onValueChange = {
                         mail = it
                     },
-
-                    modifier = Modifier.height(20.dp)
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().height(23.dp)
                 )
+                Box(Modifier
+                    .padding(0.dp)
+                    .fillMaxWidth()
+                    .height(1.5.dp)
+                    .background(color = Color(0xFF000000)))
             }
             Spacer(Modifier.height(30.dp))
-            Column {
-                var phone by remember { mutableStateOf("") }
+
+            Column(modifier =  Modifier.padding(start = 50.dp, end = 50.dp)) {
 
                 Text(
                     text = "Phone number",
@@ -116,18 +126,23 @@ fun RegistrationScreen() {
                     )
                 )
                 Spacer(Modifier.height(10.dp))
-                TextField(
+                BasicTextField(
                     value = phone,
                     onValueChange = {
                         phone = it
                     },
-
-                    modifier = Modifier.height(20.dp)
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().height(23.dp)
                 )
+                Box(Modifier
+                    .padding(0.dp)
+                    .fillMaxWidth()
+                    .height(1.5.dp)
+                    .background(color = Color(0xFF000000)))
             }
             Spacer(Modifier.height(30.dp))
-            Column {
-                var password by remember { mutableStateOf("") }
+
+            Column(modifier =  Modifier.padding(start = 50.dp, end = 50.dp)) {
                 Text(
                     text = "Password",
                     style = TextStyle(
@@ -141,18 +156,24 @@ fun RegistrationScreen() {
 
                     )
                 Spacer(Modifier.height(10.dp))
-                TextField(
+                BasicTextField(
                     value = password,
                     onValueChange = {
                         password = it
                     },
-                    modifier = Modifier.height(20.dp),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().height(23.dp)
                 )
+                Box(Modifier
+                    .padding(0.dp)
+                    .fillMaxWidth()
+                    .height(1.5.dp)
+                    .background(color = Color(0xFF000000)))
             }
             Spacer(Modifier.height(50.dp))
             Button(
                 onClick = {
-
+//                    signUp(auth, email = mail, phone = phone, password = password)
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF888888),
@@ -163,7 +184,7 @@ fun RegistrationScreen() {
                 modifier = Modifier.width(148.dp).height(33.dp)
             ){
                 Text(
-                    text = "Log in",
+                    text = "Sign up",
                     style = TextStyle(
                         fontSize = 14.sp,
                         lineHeight = 22.sp,
@@ -174,26 +195,17 @@ fun RegistrationScreen() {
                 )
             }
         }
-        Spacer(Modifier.height(30.dp))
-        Column (modifier = Modifier.clickable {  },
-            horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = "Log in",
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    lineHeight = 22.sp,
-//                    fontFamily = FontFamily(Font(R.font.space_grotesk)),
-                    fontWeight = FontWeight(400),
-                    color = Color(0xFF000000),
-                    textAlign = TextAlign.Center,
-                )
-            )
-            Spacer(Modifier.height(7.dp))
-            Box(Modifier
-                .padding(0.dp)
-                .width(106.04244.dp)
-                .height(1.dp)
-                .background(color = Color(0xFF000000)))
-        }
     }
 }
+//private fun signUp(auth: FirebaseAuth, email: String, phone: String, password:String){
+//    auth.createUserWithEmailAndPassword(email,password)
+//        .addOnCompleteListener{task ->
+//            if (task.isSuccessful) {
+//                Log.d("sign up","signed up")
+//            } else {
+//                Log.d("sign up","cannot sign up")
+//
+//            }
+//
+//        }
+//}

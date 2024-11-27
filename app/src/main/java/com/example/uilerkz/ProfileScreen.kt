@@ -2,6 +2,7 @@ package com.example.uilerkz
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -87,7 +88,7 @@ fun ProfileScreen() {
 
 @Composable
 fun ProfileButtons(icon: Int, text: String) {
-    Column(modifier = Modifier.padding(horizontal = 26.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 26.dp).clickable {  }) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
