@@ -30,10 +30,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 
 @Composable
-@Preview(showBackground = true)
 fun DetailsScreen(
+    navController: NavHostController,
     image: Int = R.drawable.advertise1,
     price: Int = 250000,
     address: String = "Dostyk, 85"
@@ -43,7 +44,9 @@ fun DetailsScreen(
         Spacer(Modifier.height(30.dp))
         Image(
             modifier = Modifier
-                .clickable { }
+                .clickable {
+                    navController.popBackStack()
+                }
                 .padding(horizontal = 10.dp),
             painter = painterResource(R.drawable.caretleft),
             contentDescription = ""

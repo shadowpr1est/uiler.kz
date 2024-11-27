@@ -1,6 +1,5 @@
 package com.example.uilerkz
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,14 +14,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,16 +28,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 
 @Composable
-@Preview(showBackground = true)
-fun RegistrationScreen() {
+fun RegistrationScreen(navController: NavHostController) {
     var mail by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -76,13 +73,13 @@ fun RegistrationScreen() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(362.dp)
-                .background(color = Color(0xFFE7E7E5), shape = RoundedCornerShape(size = 52.dp)),
+                .height(450.dp)
+                .background(color = Color(0xFFE7E7E5), shape = RoundedCornerShape(size = 52.dp)).padding(top = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
 
-            Column(modifier = Modifier.padding(start = 50.dp, end = 50.dp , top = 20.dp)) {
+            Column(modifier = Modifier.padding(start = 50.dp, end = 50.dp)) {
                 Text(
                     text = "Email",
                     style = TextStyle(
@@ -115,7 +112,7 @@ fun RegistrationScreen() {
             Column(modifier =  Modifier.padding(start = 50.dp, end = 50.dp)) {
 
                 Text(
-                    text = "Phone number",
+                    text = "First name",
                     style = TextStyle(
                         fontSize = 14.sp,
                         lineHeight = 22.sp,
@@ -127,9 +124,38 @@ fun RegistrationScreen() {
                 )
                 Spacer(Modifier.height(10.dp))
                 BasicTextField(
-                    value = phone,
+                    value = firstName,
                     onValueChange = {
-                        phone = it
+                        firstName = it
+                    },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().height(23.dp)
+                )
+                Box(Modifier
+                    .padding(0.dp)
+                    .fillMaxWidth()
+                    .height(1.5.dp)
+                    .background(color = Color(0xFF000000)))
+            }
+            Spacer(Modifier.height(30.dp))
+            Column(modifier =  Modifier.padding(start = 50.dp, end = 50.dp)) {
+
+                Text(
+                    text = "Last name",
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        lineHeight = 22.sp,
+//                    fontFamily = FontFamily(Font(R.font.space_grotesk)),
+                        fontWeight = FontWeight(400),
+                        color = Color(0xFF000000),
+                        textAlign = TextAlign.Center,
+                    )
+                )
+                Spacer(Modifier.height(10.dp))
+                BasicTextField(
+                    value = lastName,
+                    onValueChange = {
+                        lastName = it
                     },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().height(23.dp)
@@ -173,7 +199,7 @@ fun RegistrationScreen() {
             Spacer(Modifier.height(50.dp))
             Button(
                 onClick = {
-//                    signUp(auth, email = mail, phone = phone, password = password)
+
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF888888),
@@ -195,17 +221,28 @@ fun RegistrationScreen() {
                 )
             }
         }
+        Spacer(Modifier.height(40.dp))
+        Column(modifier = Modifier.clickable {
+            navController.navigate("login")
+        },horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "Log in",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    lineHeight = 22.sp,
+//                        fontFamily = FontFamily(Font(R.font.space_grotesk)),
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFF000000),
+                    textAlign = TextAlign.Center,
+                )
+            )
+            Spacer(Modifier.height(6.dp))
+            Box(Modifier
+                .padding(0.dp)
+                .width(106.04244.dp)
+                .height(1.dp)
+                .background(color = Color(0xFF000000)))
+
+        }
     }
 }
-//private fun signUp(auth: FirebaseAuth, email: String, phone: String, password:String){
-//    auth.createUserWithEmailAndPassword(email,password)
-//        .addOnCompleteListener{task ->
-//            if (task.isSuccessful) {
-//                Log.d("sign up","signed up")
-//            } else {
-//                Log.d("sign up","cannot sign up")
-//
-//            }
-//
-//        }
-//}

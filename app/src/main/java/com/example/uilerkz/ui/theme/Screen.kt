@@ -8,14 +8,9 @@ import com.example.uilerkz.R
 sealed class Screen(val route: String, val title: String, val icon: Int) {
     object Login : Screen("login", "Login", R.drawable.home_logo)
     object Registration : Screen("registration", "Register", R.drawable.shield)
-    object Profile : Screen("profile", "Profile", R.drawable.user_profile)
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun LoginPreview() {
-    UilerkzTheme {
-        LoginScreen()
-    }
+    object Profile : Screen("profile", "", R.drawable.user_profile_circle)
+    object Details : Screen("details", "", R.drawable.user_profile)
+    object Chat : Screen("chat", "", R.drawable.chat)
+    object Like : Screen("like", "", R.drawable.like)
+    object Menu : Screen("menu", "", R.drawable.menu)
 }

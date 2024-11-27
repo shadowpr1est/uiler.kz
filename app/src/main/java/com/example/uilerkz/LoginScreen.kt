@@ -1,5 +1,6 @@
 package com.example.uilerkz
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,35 +14,32 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 
 @Composable
-@Preview(showBackground = true)
-fun LoginScreen() {
+fun LoginScreen(navController: NavHostController) {
+    var mail by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
@@ -83,7 +81,7 @@ fun LoginScreen() {
             verticalArrangement = Arrangement.Center
         ) {
             Column(Modifier.fillMaxWidth().padding(start = 50.dp,top=30.dp, end = 50.dp)) {
-                var mail by remember { mutableStateOf("") }
+
                 Text(
                     text = "Email",
                     style = TextStyle(
@@ -114,7 +112,7 @@ fun LoginScreen() {
             Spacer(Modifier.height(40.dp))
             Column(Modifier.fillMaxWidth().padding(start = 50.dp, end = 50.dp),
                 verticalArrangement = Arrangement.Center) {
-                var password by remember { mutableStateOf("") }
+
                 Text(
                     text = "Password",
                     style = TextStyle(
@@ -146,7 +144,9 @@ fun LoginScreen() {
             }
             Spacer(Modifier.height(50.dp))
             Button(
-                onClick = { },
+                onClick = {
+
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF888888),
                     contentColor = Color(0xFF000000),
@@ -168,6 +168,29 @@ fun LoginScreen() {
                     )
                 )
             }
+
+        }
+        Spacer(Modifier.height(40.dp))
+        Column(modifier = Modifier.clickable {
+            navController.navigate("registration")
+        },horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "Sign up",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    lineHeight = 22.sp,
+//                        fontFamily = FontFamily(Font(R.font.space_grotesk)),
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFF000000),
+                    textAlign = TextAlign.Center,
+                )
+            )
+            Spacer(Modifier.height(6.dp))
+            Box(Modifier
+                .padding(0.dp)
+                .width(106.04244.dp)
+                .height(1.dp)
+                .background(color = Color(0xFF000000)))
 
         }
     }

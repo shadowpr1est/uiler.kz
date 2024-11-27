@@ -2,6 +2,7 @@ package com.example.uilerkz
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,12 +32,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 
-@Preview(showBackground = true)
 @Composable
-fun SearchScreen() {
+fun SearchScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
+
             .fillMaxWidth()
             .padding(16.dp)
     ) {
@@ -84,10 +86,10 @@ fun SearchScreen() {
         Spacer(modifier = Modifier.height(30.dp))
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             item{
-                Advertisement(R.drawable.advertise1)
-                Advertisement(R.drawable.advertise1)
-                Advertisement(R.drawable.advertise1)
-                Advertisement(R.drawable.advertise1)
+                Advertisement(R.drawable.advertise1, navController = navController)
+                Advertisement(R.drawable.advertise1, navController=navController)
+                Advertisement(R.drawable.advertise1, navController= navController)
+                Advertisement(R.drawable.advertise1, navController=navController)
             }
         }
     }
@@ -110,8 +112,9 @@ fun CategoryItem(icon: Int, label: String) {
 }
 
 @Composable
-fun Advertisement(icon: Int, address: String = "Dostyk, 85", price: Int = 250000) {
-    Column(modifier = Modifier.background(color = Color(0xFFF7F7F5), shape = RoundedCornerShape(size = 30.dp))
+fun Advertisement(icon: Int, address: String = "Dostyk, 85", price: Int = 250000,navController: NavHostController) {
+    Column(modifier = Modifier.background(color = Color(0xFFF7F7F5), shape = RoundedCornerShape(size = 30.dp)
+    ).clickable { navController.navigate("details")}
     ){
         Image(
             painter = painterResource(id = icon),
