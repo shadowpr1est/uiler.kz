@@ -36,6 +36,7 @@ import androidx.navigation.NavHostController
 
 @Composable
 fun ProfileScreen(navController: NavHostController) {
+    val authViewModel = AuthViewModel()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -70,7 +71,7 @@ fun ProfileScreen(navController: NavHostController) {
                     .align(Alignment.CenterStart)
             )
             Text(
-                text = "Galymbek Zharylkassynov",
+                text = authViewModel.getUserEmail().toString(),
                 style = TextStyle(
                     fontSize = 14.sp,
                     lineHeight = 22.sp,
@@ -82,16 +83,22 @@ fun ProfileScreen(navController: NavHostController) {
             )
         }
         Spacer(Modifier.height(15.dp))
-        ProfileButtons(R.drawable.shield, "Security")
-        ProfileButtons(R.drawable.wallet, "Payments")
-        ProfileButtons(R.drawable.bell, "Notifications")
-        ProfileButtons(R.drawable.settings, "Log out")
+        ProfileButtons(R.drawable.shield, "Security",navController)
+        ProfileButtons(R.drawable.wallet, "Payments",navController)
+        ProfileButtons(R.drawable.bell, "Notifications",navController)
+        ProfileButtons(R.drawable.settings, "Log out", navController,"login")
     }
 }
 
 @Composable
-fun ProfileButtons(icon: Int, text: String) {
-    Column(modifier = Modifier.padding(horizontal = 26.dp).clickable {  }) {
+fun ProfileButtons(icon: Int, text: String,navController: NavHostController,path: String="") {
+    val authViewModel = AuthViewModel()
+    Column(modifier = Modifier.padding(horizontal = 26.dp).clickable {
+        if (path == "login"){
+            authViewModel.signOut()
+            navController.navigate(path)
+        }
+    }) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()

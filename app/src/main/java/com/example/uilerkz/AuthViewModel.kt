@@ -25,13 +25,19 @@ class AuthViewModel : ViewModel() {
         checkAuthStatus()
     }
 
-    fun checkAuthStatus(){
+    fun checkAuthStatus(): Boolean{
         if(auth.currentUser==null){
             _authState.value = AuthState.Unauthenticated
+            return false
 
         }else{
             _authState.value = AuthState.Authenticated
+            return true
         }
+    }
+
+    fun getUserEmail(): String? {
+        return auth.currentUser?.email
     }
 
     fun login(email: String, password: String, navController: NavHostController){

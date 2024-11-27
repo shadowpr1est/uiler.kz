@@ -29,10 +29,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.uilerkz.ui.theme.Screen
 
 @Composable
 fun SearchScreen(navController: NavHostController) {
@@ -74,7 +74,8 @@ fun SearchScreen(navController: NavHostController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(horizontal = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -85,11 +86,11 @@ fun SearchScreen(navController: NavHostController) {
         }
         Spacer(modifier = Modifier.height(30.dp))
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            item{
+            item {
                 Advertisement(R.drawable.advertise1, navController = navController)
-                Advertisement(R.drawable.advertise1, navController=navController)
-                Advertisement(R.drawable.advertise1, navController= navController)
-                Advertisement(R.drawable.advertise1, navController=navController)
+                Advertisement(R.drawable.advertise1, navController = navController)
+                Advertisement(R.drawable.advertise1, navController = navController)
+                Advertisement(R.drawable.advertise1, navController = navController)
             }
         }
     }
@@ -112,10 +113,23 @@ fun CategoryItem(icon: Int, label: String) {
 }
 
 @Composable
-fun Advertisement(icon: Int, address: String = "Dostyk, 85", price: Int = 250000,navController: NavHostController) {
-    Column(modifier = Modifier.background(color = Color(0xFFF7F7F5), shape = RoundedCornerShape(size = 30.dp)
-    ).clickable { navController.navigate("details")}
-    ){
+fun Advertisement(
+    icon: Int,
+    address: String = "Dostyk, 85",
+    price: Int = 250000,
+    navController: NavHostController
+) {
+    Column(modifier = Modifier
+        .background(
+            color = Color(0xFFF7F7F5), shape = RoundedCornerShape(size = 30.dp)
+        )
+        .clickable {
+            navController.navigate("details") {
+                popUpTo(Screen.Details.route) { inclusive = true }
+
+            }
+        }
+    ) {
         Image(
             painter = painterResource(id = icon),
             contentDescription = "",
@@ -143,10 +157,12 @@ fun Advertisement(icon: Int, address: String = "Dostyk, 85", price: Int = 250000
                 style = TextStyle(
                     fontSize = 15.sp
                 ),
-                modifier = Modifier.background(
-                    color = Color(0xFFD9D9D9),
-                    shape = RoundedCornerShape(32.dp)
-                ).padding(horizontal = 13.dp, vertical = 5.dp)
+                modifier = Modifier
+                    .background(
+                        color = Color(0xFFD9D9D9),
+                        shape = RoundedCornerShape(32.dp)
+                    )
+                    .padding(horizontal = 13.dp, vertical = 5.dp)
             )
             Text(
                 text = "$price tg",

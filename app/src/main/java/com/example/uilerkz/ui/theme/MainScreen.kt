@@ -58,12 +58,13 @@ fun BottomNavigationBar(navController: NavController) {
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
+    val authViewModel = AuthViewModel()
     Scaffold(
         bottomBar = { BottomNavigationBar(navController) },
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Login.route,
+            startDestination = Screen.Menu.route,
             Modifier.padding(innerPadding),
         ) {
             composable(Screen.Login.route) { LoginScreen(navController) }
@@ -72,10 +73,11 @@ fun MainScreen() {
             composable(Screen.Details.route) { DetailsScreen(navController) }
             composable(Screen.Like.route) { LikedScreen() }
             composable(Screen.Chat.route) { ChatScreen() }
-            composable(Screen.Profile.route) { LoginScreen(navController) }
+            composable(Screen.Profile.route) { if (authViewModel.checkAuthStatus()) ProfileScreen(navController) else LoginScreen(navController) }
         }
     }
 }
+
 
 
 @Composable
