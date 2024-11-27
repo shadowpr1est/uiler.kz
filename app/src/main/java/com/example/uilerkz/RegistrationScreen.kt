@@ -18,7 +18,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,6 +33,7 @@ import androidx.navigation.NavHostController
 
 @Composable
 fun RegistrationScreen(navController: NavHostController) {
+    val authViewModel =  AuthViewModel()
     var mail by remember { mutableStateOf("") }
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
@@ -199,7 +199,7 @@ fun RegistrationScreen(navController: NavHostController) {
             Spacer(Modifier.height(50.dp))
             Button(
                 onClick = {
-
+                    authViewModel.signUp(email = mail, password = password, navController = navController)
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF888888),

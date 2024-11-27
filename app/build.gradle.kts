@@ -52,7 +52,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.google.firebase.auth.ktx)
     implementation(platform(libs.firebase.bom))
     implementation(libs.ui.graphics)
