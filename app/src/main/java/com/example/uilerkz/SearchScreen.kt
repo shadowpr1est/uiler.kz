@@ -29,50 +29,26 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.uilerkz.ui.theme.Screen
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewSearchScreen() {
+    SearchScreen(navController = rememberNavController())
+}
 
 @Composable
 fun SearchScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
-
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.LightGray, RoundedCornerShape(24.dp))
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search Icon",
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Search",
-                    color = Color.Gray,
-                )
-            }
-            Icon(
-                imageVector = Icons.Default.Settings,
-                contentDescription = "Settings Icon",
-                modifier = Modifier.size(24.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -179,3 +155,4 @@ fun Advertisement(
         Spacer(Modifier.height(25.dp))
     }
 }
+

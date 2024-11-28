@@ -1,29 +1,25 @@
 package com.example.uilerkz
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -31,145 +27,361 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.pager.*
+import com.google.android.material.datepicker.MaterialDatePicker
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+@Composable
+fun OnboardingPager() {
+    val pagerState = rememberPagerState()
+    val images = listOf(
+        R.drawable.a1,
+        R.drawable.a2,
+        R.drawable.a3,
+        R.drawable.a4
+    )
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        HorizontalPager(
+            count = images.size,
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(350.dp)
+        ) { page ->
+            Image(
+                painter = painterResource(id = images[page]),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+    DotsIndicator(
+        totalDots = images.size,
+        selectedIndex = pagerState.currentPage,
+        modifier = Modifier.align(Alignment.CenterHorizontally)
+    )
+
+    }
+}
+
+@Composable
+fun DotsIndicator(totalDots: Int, selectedIndex: Int, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        repeat(totalDots) { index ->
+            val color = if (index == selectedIndex) Color.Black else Color.Gray
+            Box(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .size(8.dp)
+                    .background(color, RoundedCornerShape(50))
+            )
+        }
+    }
+}
+@Composable
+fun BookingSection(onBook: (String, String) -> Unit) {
+    var arrivalDate by remember { mutableStateOf("") }
+    var leavingDate by remember { mutableStateOf("") }
+    var isSelectingArrival by remember { mutableStateOf(false) }
+    var isSelectingLeaving by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Button(onClick = { isSelectingArrival = true }) {
+                Text(text = if (arrivalDate.isEmpty()) "Choose Arrival Date" else arrivalDate)
+            }
+
+            Button(onClick = { isSelectingLeaving = true }) {
+                Text(text = if (leavingDate.isEmpty()) "Choose Leaving Date" else leavingDate)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                onBook(arrivalDate, leavingDate)
+            },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text("Book")
+        }
+    }
+
+    if (isSelectingArrival) {
+        CalendarDialog(
+            onDateSelected = { selectedDate ->
+                arrivalDate = selectedDate
+                isSelectingArrival = false
+            },
+            onDismiss = { isSelectingArrival = false }
+        )
+    }
+
+    if (isSelectingLeaving) {
+        CalendarDialog(
+            onDateSelected = { selectedDate ->
+                leavingDate = selectedDate
+                isSelectingLeaving = false
+            },
+            onDismiss = { isSelectingLeaving = false }
+        )
+    }
+}
+
+@Composable
+fun CalendarDialog(onDateSelected: (String) -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Select Date") },
+        text = {
+            CustomCalendarWithMonthSelection { selectedDate ->
+                onDateSelected(selectedDate)
+            }
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text("Close")
+            }
+        }
+    )
+}
+
+@Composable
+fun CustomCalendarWithMonthSelection(onDateSelected: (String) -> Unit) {
+    var currentMonthIndex by remember { mutableStateOf(10) } // November (index starts at 0)
+    var currentYear by remember { mutableStateOf(2024) }
+
+    // Months list
+    val months = listOf(
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    )
+
+    // Days in month calculation (handles leap years)
+    val daysInMonth = remember(currentMonthIndex, currentYear) {
+        when (currentMonthIndex) {
+            0, 2, 4, 6, 7, 9, 11 -> 31 // Jan, Mar, May, Jul, Aug, Oct, Dec
+            3, 5, 8, 10 -> 30 // Apr, Jun, Sep, Nov
+            1 -> if (isLeapYear(currentYear)) 29 else 28 // Feb
+            else -> 30
+        }
+    }
+    val days = (1..daysInMonth).toList()
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        // Month and Year Selector
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = {
+                if (currentMonthIndex == 0) {
+                    currentMonthIndex = 11
+                    currentYear--
+                } else {
+                    currentMonthIndex--
+                }
+            }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.caretleft), // Replace with your back arrow
+                    contentDescription = "Previous Month"
+                )
+            }
+
+            Text(
+                "${months[currentMonthIndex]} $currentYear",
+                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            )
+
+            IconButton(onClick = {
+                if (currentMonthIndex == 11) {
+                    currentMonthIndex = 0
+                    currentYear++
+                } else {
+                    currentMonthIndex++
+                }
+            }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.caretleft), // Replace with your forward arrow
+                    contentDescription = "Next Month",
+                    modifier = Modifier
+                        .graphicsLayer(rotationZ = 180f)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Calendar Grid
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().height(200.dp)
+        ) {
+            // Divide the days into rows of 7
+            items(days.chunked(7)) { week ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    week.forEach { day ->
+                        Box(
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .size(40.dp)
+                                .background(Color.LightGray, RoundedCornerShape(50))
+                                .clickable {
+                                    val selectedDate =
+                                        "$currentYear-${(currentMonthIndex + 1).toString().padStart(2, '0')}-${
+                                            day.toString().padStart(2, '0')
+                                        }"
+                                    onDateSelected(selectedDate)
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = day.toString(),
+                                style = TextStyle(color = Color.Black)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Helper function to determine leap year
+fun isLeapYear(year: Int): Boolean {
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
+}
+
 
 @Composable
 fun DetailsScreen(
     navController: NavHostController,
     image: Int = R.drawable.advertise1,
-    price: Int = 250000,
     address: String = "Dostyk, 85"
 ) {
-    Column(modifier = Modifier
-        .fillMaxSize()) {
-        Spacer(Modifier.height(10.dp))
-        Image(
-            modifier = Modifier
-                .clickable {
-                    navController.popBackStack()
-                }
-                .padding(horizontal = 20.dp),
-            painter = painterResource(R.drawable.caretleft),
-            contentDescription = ""
-        )
-        Spacer(Modifier.height(30.dp))
-        Image(
-            painter = painterResource(image), contentDescription = "",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .padding(horizontal = 10.dp)
-                .height(350.dp)
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 20.dp, horizontal = 40.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = address,
-                style = TextStyle(
-                    fontSize = 28.sp,
-                    lineHeight = 22.sp,
-//                fontFamily = FontFamily(Font(R.font.space_grotesk)),
-                    fontWeight = FontWeight(700),
-                    color = Color(0xFF000000),
-                    textAlign = TextAlign.Center,
-                )
-            )
-            Image(painter = painterResource(R.drawable.heart), contentDescription = null)
-        }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        modifier = Modifier.fillMaxSize()
+    ) { paddingValues ->
+
         Column(
             modifier = Modifier
-                .fillMaxWidth().
-                    fillMaxHeight(1f)
-                .background(color = Color(0xFFE7E7E5), shape = RoundedCornerShape(50.dp))
-                .padding(top = 40.dp)
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(Color.White)
         ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(painterResource(R.drawable.resource_package), contentDescription = null)
-                    Text(
-                        text = "Bazis - A",
-                        style = TextStyle(
-                            fontSize = 20.sp,
-                            lineHeight = 22.sp,
-//                    fontFamily = FontFamily(Font(R.font.space_grotesk)),
-                            fontWeight = FontWeight(400),
-                            color = Color(0xFF000000),
-                            textAlign = TextAlign.Center,
-                        )
-                    )
-                }
-                Spacer(Modifier.height(20.dp))
-                Text(
-                    text = "two-room apartment",
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        lineHeight = 22.sp,
-//                    fontFamily = FontFamily(Font(R.font.space_grotesk)),
-                        fontWeight = FontWeight(400),
-                        color = Color(0xFF000000),
-                        textAlign = TextAlign.Center,
-                    ), modifier = Modifier.padding(start = 5.dp)
-                )
-                Spacer(Modifier.height(20.dp))
-                Text(
-                    text = "for 3 persons",
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        lineHeight = 22.sp,
-//                    fontFamily = FontFamily(Font(R.font.space_grotesk)),
-                        fontWeight = FontWeight(400),
-                        color = Color(0xFF000000),
-                        textAlign = TextAlign.Center,
-                    ), modifier = Modifier.padding(start = 5.dp)
-                )
-            }
-            Spacer(Modifier.height(70.dp))
-            Column(modifier = Modifier.fillMaxSize().background(color = Color.White, shape = RoundedCornerShape(50.dp)).padding(horizontal = 30.dp),
-                verticalArrangement = Arrangement.Center,
+            // Back Button (aligned at the top left)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "$price tg",
-                        style = TextStyle(
-                            fontSize = 20.sp,
-                            lineHeight = 22.sp,
-//                            fontFamily = FontFamily(Font(R.font.space_grotesk)),
-                            fontWeight = FontWeight(400),
-                            color = Color(0xFF000000),
-                            textAlign = TextAlign.Center,
-                        )
-                    )
-                    Column(Modifier.padding(horizontal = 25.dp , vertical = 10.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable {  },
-                        horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "Book",
-                            style = TextStyle(
-                                fontSize = 20.sp,
-                                lineHeight = 22.sp,
-//                                fontFamily = FontFamily(Font(R.font.space_grotesk)),
-                                fontWeight = FontWeight(500),
-                                color = Color(0xFF000000),
-                                textAlign = TextAlign.Center,
-                            )
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        Box(Modifier
-                            .padding(0.dp)
-                            .width(67.dp)
-                            .height(1.dp)
-                            .background(color = Color(0xFF000000)))
-                    }
+                Image(
+                    painter = painterResource(R.drawable.caretleft),
+                    contentDescription = "Back",
+                    modifier = Modifier
+                        .clickable { navController.popBackStack() }
+                        .size(24.dp)
+                )
+            }
 
+            Spacer(Modifier.height(8.dp))
+
+            // Onboarding Pager (Image carousel with dots)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp) // Constrain the height of OnboardingPager
+            ) {
+                OnboardingPager()
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            // Address and Heart Icon
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = address,
+                    style = TextStyle(
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                )
+
+                Icon(
+                    painter = painterResource(R.drawable.heart),
+                    contentDescription = "Favorite",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            // Booking Section
+            BookingSection { arrival, leaving ->
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Booking Successful: $arrival to $leaving"
+                    )
                 }
             }
+
+            Spacer(Modifier.height(20.dp))
+
+            // Additional Information Section (e.g., description)
+            Text(
+                text = "This is a cozy apartment located in the heart of the city. Enjoy flexible subscription-based rentals for your convenience.",
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.Gray
+                ),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+            )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewDetailsScreen() {
+    DetailsScreen(navController = rememberNavController())
 }
