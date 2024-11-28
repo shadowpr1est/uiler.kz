@@ -86,7 +86,7 @@ fun ProfileScreen(navController: NavHostController) {
         ProfileButtons(R.drawable.shield, "Security",navController)
         ProfileButtons(R.drawable.wallet, "Payments",navController)
         ProfileButtons(R.drawable.bell, "Notifications",navController)
-        ProfileButtons(R.drawable.settings, "Log out", navController,"login")
+        ProfileButtons(R.drawable.logout2, "Log out", navController,"login")
     }
 }
 

@@ -24,7 +24,7 @@ import com.example.uilerkz.ui.theme.Screen
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
-    val items = listOf(Screen.Menu, Screen.Like, Screen.Chat, Screen.Profile)
+    val items = listOf(Screen.Menu, Screen.Like, Screen.Pricing, Screen.Profile)
     BottomNavigation(
         modifier = Modifier.clip(RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp)),
         backgroundColor = Color(0xFFE7E7E5)
@@ -72,7 +72,7 @@ fun MainScreen() {
             composable(Screen.Menu.route) { SearchScreen(navController) }
             composable(Screen.Details.route) { DetailsScreen(navController) }
             composable(Screen.Like.route) { LikedScreen() }
-            composable(Screen.Chat.route) { ChatScreen() }
+            composable(Screen.Pricing.route) { PricingScreen() }
             composable(Screen.Profile.route) { if (authViewModel.checkAuthStatus()) ProfileScreen(navController) else LoginScreen(navController) }
         }
     }
@@ -80,16 +80,3 @@ fun MainScreen() {
 
 
 
-@Composable
-fun LikedScreen() {
-    Column(modifier = Modifier.fillMaxSize()) {
-
-    }
-}
-
-@Composable
-fun ChatScreen() {
-    Column(modifier = Modifier.fillMaxSize()) {
-
-    }
-}

@@ -20,6 +20,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -41,13 +42,13 @@ fun DetailsScreen(
 ) {
     Column(modifier = Modifier
         .fillMaxSize()) {
-        Spacer(Modifier.height(30.dp))
+        Spacer(Modifier.height(10.dp))
         Image(
             modifier = Modifier
                 .clickable {
                     navController.popBackStack()
                 }
-                .padding(horizontal = 10.dp),
+                .padding(horizontal = 20.dp),
             painter = painterResource(R.drawable.caretleft),
             contentDescription = ""
         )
@@ -62,7 +63,7 @@ fun DetailsScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 20.dp, horizontal = 10.dp),
+                .padding(vertical = 20.dp, horizontal = 40.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -144,7 +145,9 @@ fun DetailsScreen(
                             textAlign = TextAlign.Center,
                         )
                     )
-                    Column(Modifier.clickable {  },
+                    Column(Modifier.padding(horizontal = 25.dp , vertical = 10.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable {  },
                         horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = "Book",

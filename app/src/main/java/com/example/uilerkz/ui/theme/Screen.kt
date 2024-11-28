@@ -10,7 +10,7 @@ sealed class Screen(val route: String, val title: String, val icon: Int) {
     object Registration : Screen("registration", "Register", R.drawable.shield)
     object Profile : Screen("profile", "", R.drawable.user_profile_circle)
     object Details : Screen("details", "", R.drawable.user_profile)
-    object Chat : Screen("chat", "", R.drawable.chat)
+    object Pricing : Screen("pricing", "", R.drawable.pricing)
     object Like : Screen("like", "", R.drawable.like)
     object Menu : Screen("menu", "", R.drawable.menu)
 }
