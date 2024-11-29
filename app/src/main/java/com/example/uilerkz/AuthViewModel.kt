@@ -81,6 +81,9 @@ class AuthViewModel : ViewModel() {
         auth.signOut()
         _authState.value = AuthState.Unauthenticated
     }
+    fun storeLiked(id:Int){
+
+    }
 }
 
 sealed class AuthState{

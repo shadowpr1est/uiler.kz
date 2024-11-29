@@ -1,5 +1,6 @@
 package com.example.uilerkz
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,11 +17,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.uilerkz.ui.theme.Screen
+import kotlin.math.log
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
@@ -70,7 +74,20 @@ fun MainScreen() {
             composable(Screen.Login.route) { LoginScreen(navController) }
             composable(Screen.Registration.route) { RegistrationScreen(navController) }
             composable(Screen.Menu.route) { SearchScreen(navController) }
-            composable(Screen.Details.route) { DetailsScreen(navController) }
+            composable(
+                route = "details/{image}/{address}",
+                arguments = listOf(
+                    navArgument("image") { type = NavType.IntType },
+                    navArgument("address") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val image = backStackEntry.arguments?.getInt("image") ?: R.drawable.resource_package
+                val address = backStackEntry.arguments?.getString("address") ?: "Unknown Address"
+
+                Log.d("details", "$image $address")
+
+                DetailsScreen(navController = navController, image = image, address = address)
+            }
             composable(Screen.Like.route) { LikedScreen() }
             composable(Screen.Pricing.route) { PricingScreen() }
             composable(Screen.Profile.route) { if (authViewModel.checkAuthStatus()) ProfileScreen(navController) else LoginScreen(navController) }

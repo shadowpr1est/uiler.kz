@@ -32,6 +32,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.pager.*
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -282,11 +284,20 @@ fun isLeapYear(year: Int): Boolean {
 fun DetailsScreen(
     navController: NavHostController,
     image: Int = R.drawable.advertise1,
-    address: String = "Dostyk, 85"
+    address: String = "Dostyk, 85",
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
+    // Состояние для проверки, добавлен ли элемент в избранное
+    var isLiked by remember { mutableStateOf(false) }
+
+    // Загрузка состояния лайка из Firestore при создании экрана
+    LaunchedEffect(image) {
+        fetchFavorites { favorites ->
+            isLiked = favorites.contains(image.toString())
+        }
+    }
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         modifier = Modifier.fillMaxSize()
@@ -345,9 +356,22 @@ fun DetailsScreen(
                 )
 
                 Icon(
-                    painter = painterResource(R.drawable.heart),
-                    contentDescription = "Favorite",
-                    modifier = Modifier.size(24.dp)
+                    painter = painterResource(if (isLiked) R.drawable.heart_filled else R.drawable.heart),
+                    contentDescription = if (isLiked) "Remove from Favorites" else "Add to Favorites",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+
+                            toggleFavorite(image.toString()) { success, message ->
+                                if (success) {
+                                    // Обновляем состояние лайка
+                                    isLiked = !isLiked
+                                }
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(message ?: "Unknown Error")
+                                }
+                            }
+                        }
                 )
             }
 
@@ -385,3 +409,70 @@ fun DetailsScreen(
 fun PreviewDetailsScreen() {
     DetailsScreen(navController = rememberNavController())
 }
+
+fun fetchFavorites(onComplete: (List<String>) -> Unit) {
+    val auth = FirebaseAuth.getInstance()
+    val firestore = FirebaseFirestore.getInstance()
+    val currentUser = auth.currentUser
+
+    if (currentUser != null) {
+        val userId = currentUser.uid
+        val docRef = firestore.collection("favorites").document(userId)
+
+        docRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val items = documentSnapshot.get("items") as? List<String> ?: emptyList()
+                    onComplete(items)
+                } else {
+                    onComplete(emptyList())
+                }
+            }
+            .addOnFailureListener {
+                onComplete(emptyList())
+            }
+    } else {
+        onComplete(emptyList())
+    }
+}
+
+
+
+fun toggleFavorite(itemId: String, onComplete: (Boolean, String?) -> Unit) {
+    val auth = FirebaseAuth.getInstance()
+    val firestore = FirebaseFirestore.getInstance()
+    val currentUser = auth.currentUser
+
+    if (currentUser != null) {
+        val userId = currentUser.uid
+        val docRef = firestore.collection("favorites").document(userId)
+
+        docRef.get().addOnSuccessListener { documentSnapshot ->
+            if (documentSnapshot.exists()) {
+                val items = documentSnapshot.get("items") as? MutableList<String> ?: mutableListOf()
+
+                if (items.contains(itemId)) {
+                    items.remove(itemId)
+                    docRef.update("items", items)
+                        .addOnSuccessListener { onComplete(true, "Removed from Favorites") }
+                        .addOnFailureListener { e -> onComplete(false, e.message) }
+                } else {
+                    items.add(itemId)
+                    docRef.update("items", items)
+                        .addOnSuccessListener { onComplete(true, "Added to Favorites") }
+                        .addOnFailureListener { e -> onComplete(false, e.message) }
+                }
+            } else {
+                docRef.set(mapOf("items" to listOf(itemId)))
+                    .addOnSuccessListener { onComplete(true, "Added to Favorites") }
+                    .addOnFailureListener { e -> onComplete(false, e.message) }
+            }
+        }.addOnFailureListener { e ->
+            onComplete(false, e.message)
+        }
+    } else {
+        onComplete(false, "User not authenticated")
+    }
+}
+
+

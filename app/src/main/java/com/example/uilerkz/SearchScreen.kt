@@ -1,5 +1,6 @@
 package com.example.uilerkz
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -93,17 +94,20 @@ fun Advertisement(
     icon: Int,
     address: String = "Dostyk, 85",
     price: Int = 250000,
-    navController: NavHostController
+    navController: NavHostController,
 ) {
     Column(modifier = Modifier
         .background(
             color = Color(0xFFF7F7F5), shape = RoundedCornerShape(size = 30.dp)
         )
         .clickable {
-            navController.navigate("details") {
-                popUpTo(Screen.Details.route) { inclusive = true }
+            val selectedImage = R.drawable.advertise1
+            val selectedAddress = "Dostyk, 85"
 
+            navController.navigate("details/${selectedImage}/${selectedAddress}") {
+                popUpTo("details") { inclusive = true }
             }
+
         }
     ) {
         Image(
