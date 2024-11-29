@@ -88,7 +88,7 @@ fun MainScreen() {
 
                 DetailsScreen(navController = navController, image = image, address = address)
             }
-            composable(Screen.Like.route) { LikedScreen() }
+            composable(Screen.Like.route) { LikedScreen(navController) }
             composable(Screen.Pricing.route) { PricingScreen() }
             composable(Screen.Profile.route) { if (authViewModel.checkAuthStatus()) ProfileScreen(navController) else LoginScreen(navController) }
         }

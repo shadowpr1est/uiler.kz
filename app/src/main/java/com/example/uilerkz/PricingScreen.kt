@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 @Composable
 fun TarifCard(
@@ -176,6 +177,7 @@ fun PricingScreen() {
                     onPlanSelected = {
                         if (!isCurrentPlan) {
                             selectedPlan = name
+
                             savePlanToFirestore(firestore, currentUser, name)
                         }
                     }
@@ -189,13 +191,15 @@ fun savePlanToFirestore(firestore: FirebaseFirestore, currentUser: FirebaseUser?
     if (currentUser != null) {
         firestore.collection("users")
             .document(currentUser.uid)
-            .update("sub_type", plan)
+            .set(mapOf("sub_type" to plan), SetOptions.merge())
             .addOnSuccessListener {
+                Log.d("pricing", "Successfully stored data")
                 println("Plan updated successfully!")
             }
             .addOnFailureListener { e ->
-                println("Error updating plan: ${e.message}")
+                Log.e("pricing", "Error updating plan: ${e.message}")
             }
+
     }
 }
 
@@ -207,14 +211,25 @@ fun retrieveUserData(
     onDataLoaded: (String) -> Unit
 ) {
     if (currentUser != null) {
-        firestore.collection("users")
-            .document(currentUser.uid)
-            .get()
+        val userRef = firestore.collection("users").document(currentUser.uid)
+        userRef.get()
             .addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
-                    val subType = documentSnapshot.getString("sub_type") ?: "No subscription"
-                    onDataLoaded(subType)
+                    if (!documentSnapshot.contains("sub_type")) {
+                        userRef.update("sub_type", "None")
+                            .addOnSuccessListener {
+                                onDataLoaded("None")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("Firebase", "Error updating sub_type: ${e.message}")
+                                onDataLoaded("None")
+                            }
+                    } else {
+                        val subType = documentSnapshot.getString("sub_type") ?: "No subscription"
+                        onDataLoaded(subType)
+                    }
                 } else {
+                    Log.d("pricing","subType")
                     onDataLoaded("None")
                 }
             }
