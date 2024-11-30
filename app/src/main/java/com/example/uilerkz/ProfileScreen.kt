@@ -85,7 +85,7 @@ fun ProfileScreen(navController: NavHostController) {
         Spacer(Modifier.height(15.dp))
         ProfileButtons(R.drawable.shield, "Security",navController)
         ProfileButtons(R.drawable.wallet, "Payments",navController)
-        ProfileButtons(R.drawable.bell, "Notifications",navController)
+        ProfileButtons(R.drawable.history, "History",navController, "history")
         ProfileButtons(R.drawable.logout2, "Log out", navController,"login")
     }
 }
@@ -96,6 +96,8 @@ fun ProfileButtons(icon: Int, text: String,navController: NavHostController,path
     Column(modifier = Modifier.padding(horizontal = 26.dp).clickable {
         if (path == "login"){
             authViewModel.signOut()
+            navController.navigate(path)
+        }else if(path == "history"){
             navController.navigate(path)
         }
     }) {

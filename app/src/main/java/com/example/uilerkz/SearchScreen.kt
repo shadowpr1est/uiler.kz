@@ -49,7 +49,21 @@ fun SearchScreen(navController: NavHostController) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
+        , horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        Text(
+            text = "Uiler.kz",
+            style = TextStyle(
+                fontSize = 30.sp,
+                lineHeight = 22.sp,
+//                    fontFamily = FontFamily(Font(R.font.space_grotesk)),
+                fontWeight = FontWeight(700),
+                color = Color(0xFF000000),
+                textAlign = TextAlign.Center,
+            )
+        )
+        Spacer(Modifier.height(20.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()

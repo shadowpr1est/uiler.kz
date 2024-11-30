@@ -1,5 +1,6 @@
 package com.example.uilerkz
 
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -33,7 +34,9 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.pager.*
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -67,11 +70,11 @@ fun OnboardingPager() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-    DotsIndicator(
-        totalDots = images.size,
-        selectedIndex = pagerState.currentPage,
-        modifier = Modifier.align(Alignment.CenterHorizontally)
-    )
+        DotsIndicator(
+            totalDots = images.size,
+            selectedIndex = pagerState.currentPage,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
 
     }
 }
@@ -95,7 +98,11 @@ fun DotsIndicator(totalDots: Int, selectedIndex: Int, modifier: Modifier = Modif
     }
 }
 @Composable
-fun BookingSection(onBook: (String, String) -> Unit) {
+fun BookingSection(onBook: (String, String, String, Int) -> Unit, image: Int, address: String) {
+    val auth = FirebaseAuth.getInstance()
+    val firestore = FirebaseFirestore.getInstance()
+    val currentUser = auth.currentUser
+
     var arrivalDate by remember { mutableStateOf("") }
     var leavingDate by remember { mutableStateOf("") }
     var isSelectingArrival by remember { mutableStateOf(false) }
@@ -123,7 +130,51 @@ fun BookingSection(onBook: (String, String) -> Unit) {
 
         Button(
             onClick = {
-                onBook(arrivalDate, leavingDate)
+                onBook(arrivalDate, leavingDate, address, image)
+                if (currentUser != null) {
+                    val newBooking = mapOf(
+                        "start_date" to arrivalDate,
+                        "end_date" to leavingDate,
+                        "address" to address,
+                        "image" to image.toString() // Store the image ID or URL
+                    )
+
+                    // Get the reference to the user's document
+                    val userDocRef = firestore.collection("users").document(currentUser.uid)
+
+                    // Check if the user already has bookings
+                    userDocRef.get()
+                        .addOnSuccessListener { document ->
+                            if (document.exists()) {
+                                // If bookings already exist, add the new booking to the existing array
+                                val existingBookings = document.get("bookings") as? List<Map<String, Any>> ?: emptyList()
+                                val updatedBookings = existingBookings + newBooking
+
+                                // Update the bookings array
+                                userDocRef.update("bookings", updatedBookings)
+                                    .addOnSuccessListener {
+                                        Log.d("pricing", "Booking added to existing bookings")
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.e("pricing", "Error adding new booking: ${e.message}")
+                                    }
+                            } else {
+                                // If no bookings exist, create a new bookings field with the new booking
+                                userDocRef.set(
+                                    mapOf("bookings" to listOf(newBooking))
+                                )
+                                    .addOnSuccessListener {
+                                        Log.d("pricing", "Successfully created bookings field and stored data")
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.e("pricing", "Error creating bookings field: ${e.message}")
+                                    }
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("pricing", "Error checking for existing bookings: ${e.message}")
+                        }
+                }
             },
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
@@ -151,6 +202,7 @@ fun BookingSection(onBook: (String, String) -> Unit) {
         )
     }
 }
+
 
 @Composable
 fun CalendarDialog(onDateSelected: (String) -> Unit, onDismiss: () -> Unit) {
@@ -288,16 +340,14 @@ fun DetailsScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-
-    // Состояние для проверки, добавлен ли элемент в избранное
     var isLiked by remember { mutableStateOf(false) }
 
-    // Загрузка состояния лайка из Firestore при создании экрана
-    LaunchedEffect(image) {
+    LaunchedEffect(image, address) {
         fetchFavorites { favorites ->
-            isLiked = favorites.contains(image.toString())
+            isLiked = favorites.any { it["image"] == image.toString() && it["address"] == address }
         }
     }
+
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         modifier = Modifier.fillMaxSize()
@@ -310,18 +360,30 @@ fun DetailsScreen(
                 .background(Color.White)
         ) {
             // Back Button (aligned at the top left)
-            Row(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
                     painter = painterResource(R.drawable.caretleft),
                     contentDescription = "Back",
                     modifier = Modifier
                         .clickable { navController.popBackStack() }
-                        .size(24.dp)
+                        .size(24.dp).align(Alignment.CenterStart)
+                )
+
+                Text(
+                    text = "Uiler.kz",
+                    style = TextStyle(
+                        fontSize = 30.sp,
+                        lineHeight = 22.sp,
+//                    fontFamily = FontFamily(Font(R.font.space_grotesk)),
+                        fontWeight = FontWeight(700),
+                        color = Color(0xFF000000),
+                        textAlign = TextAlign.Center,
+                    ),
+                    modifier = Modifier.align(Alignment.TopCenter)
                 )
             }
 
@@ -355,36 +417,41 @@ fun DetailsScreen(
                     )
                 )
 
-                Icon(
-                    painter = painterResource(if (isLiked) R.drawable.heart_filled else R.drawable.heart),
-                    contentDescription = if (isLiked) "Remove from Favorites" else "Add to Favorites",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable {
-
-                            toggleFavorite(image.toString()) { success, message ->
-                                if (success) {
-                                    // Обновляем состояние лайка
-                                    isLiked = !isLiked
-                                }
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar(message ?: "Unknown Error")
-                                }
+                IconToggleButton(
+                    checked = isLiked,
+                    onCheckedChange = { checked ->
+                        toggleFavorite(image.toString(), address) { success, message ->
+                            if (success) {
+                                isLiked = checked
+                            }
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(message ?: "Unknown Error")
                             }
                         }
-                )
+                    }
+                ) {
+                    Icon(
+                        painter = painterResource(if (isLiked) R.drawable.heart_filled else R.drawable.heart),
+                        contentDescription = if (isLiked) "Remove from Favorites" else "Add to Favorites",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
 
             Spacer(Modifier.height(16.dp))
 
-            // Booking Section
-            BookingSection { arrival, leaving ->
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = "Booking Successful: $arrival to $leaving"
-                    )
-                }
-            }
+            BookingSection(
+                onBook = { arrival, leaving, bookedAddress, bookedImage ->
+                    // Handle the booking, for example show a snackbar
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = "Booking Successful: $arrival to $leaving at $bookedAddress"
+                        )
+                    }
+                },
+                image = image,
+                address = address
+            )
 
             Spacer(Modifier.height(20.dp))
 
@@ -403,76 +470,87 @@ fun DetailsScreen(
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewDetailsScreen() {
-    DetailsScreen(navController = rememberNavController())
-}
-
-fun fetchFavorites(onComplete: (List<String>) -> Unit) {
+fun toggleFavorite(image: String, address: String, onComplete: (Boolean, String?) -> Unit) {
     val auth = FirebaseAuth.getInstance()
     val firestore = FirebaseFirestore.getInstance()
     val currentUser = auth.currentUser
 
     if (currentUser != null) {
-        val userId = currentUser.uid
-        val docRef = firestore.collection("favorites").document(userId)
+        val userDocRef = firestore.collection("users").document(currentUser.uid)
 
-        docRef.get()
+        userDocRef.get()
+            .addOnSuccessListener { document ->
+                val newFavorite = mapOf("image" to image, "address" to address)
+                val existingFavorites = document.get("favorites") as? List<Map<String, String>> ?: emptyList()
+
+                // Check if the item is already in the favorites
+                if (existingFavorites.any { it["image"] == image && it["address"] == address }) {
+                    // Remove item from favorites
+                    val updatedFavorites = existingFavorites.filterNot { it["image"] == image && it["address"] == address }
+                    userDocRef.update("favorites", updatedFavorites)
+                        .addOnSuccessListener {
+                            onComplete(false, "Removed from favorites")
+                            // After updating, you may want to reload the favorites data
+                            fetchFavorites { favorites ->
+                                // Handle the updated favorites list
+                                // Update UI state based on the new favorites
+                                // Example: Update `isLiked` state here
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            onComplete(false, "Error removing from favorites: ${e.message}")
+                        }
+                } else {
+                    // Add item to favorites
+                    val updatedFavorites = existingFavorites + newFavorite
+                    userDocRef.update("favorites", updatedFavorites)
+                        .addOnSuccessListener {
+                            onComplete(true, "Added to favorites")
+                            // After updating, you may want to reload the favorites data
+                            fetchFavorites { favorites ->
+                                // Handle the updated favorites list
+                                // Update UI state based on the new favorites
+                                // Example: Update `isLiked` state here
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            onComplete(false, "Error adding to favorites: ${e.message}")
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                onComplete(false, "Error fetching user data: ${e.message}")
+            }
+    } else {
+        onComplete(false, "No user logged in")
+    }
+}
+
+
+fun fetchFavorites(onComplete: (List<Map<String, String>>) -> Unit) {
+    val auth = FirebaseAuth.getInstance()
+    val firestore = FirebaseFirestore.getInstance()
+    val currentUser = auth.currentUser
+
+    if (currentUser != null) {
+        val userRef = firestore.collection("users").document(currentUser.uid)
+
+        // Fetch favorites from Firestore
+        userRef.get()
             .addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
-                    val items = documentSnapshot.get("items") as? List<String> ?: emptyList()
-                    onComplete(items)
+                    val favoritesList = documentSnapshot.get("favorites") as? List<Map<String, String>> ?: emptyList()
+                    onComplete(favoritesList)
                 } else {
+                    Log.e("pricing", "User document does not exist.")
                     onComplete(emptyList())
                 }
             }
-            .addOnFailureListener {
+            .addOnFailureListener { e ->
+                Log.e("pricing", "Error fetching user data: ${e.message}")
                 onComplete(emptyList())
             }
     } else {
-        onComplete(emptyList())
+        onComplete(emptyList()) // If no user is logged in, return empty list
     }
 }
-
-
-
-fun toggleFavorite(itemId: String, onComplete: (Boolean, String?) -> Unit) {
-    val auth = FirebaseAuth.getInstance()
-    val firestore = FirebaseFirestore.getInstance()
-    val currentUser = auth.currentUser
-
-    if (currentUser != null) {
-        val userId = currentUser.uid
-        val docRef = firestore.collection("favorites").document(userId)
-
-        docRef.get().addOnSuccessListener { documentSnapshot ->
-            if (documentSnapshot.exists()) {
-                val items = documentSnapshot.get("items") as? MutableList<String> ?: mutableListOf()
-
-                if (items.contains(itemId)) {
-                    items.remove(itemId)
-                    docRef.update("items", items)
-                        .addOnSuccessListener { onComplete(true, "Removed from Favorites") }
-                        .addOnFailureListener { e -> onComplete(false, e.message) }
-                } else {
-                    items.add(itemId)
-                    docRef.update("items", items)
-                        .addOnSuccessListener { onComplete(true, "Added to Favorites") }
-                        .addOnFailureListener { e -> onComplete(false, e.message) }
-                }
-            } else {
-                docRef.set(mapOf("items" to listOf(itemId)))
-                    .addOnSuccessListener { onComplete(true, "Added to Favorites") }
-                    .addOnFailureListener { e -> onComplete(false, e.message) }
-            }
-        }.addOnFailureListener { e ->
-            onComplete(false, e.message)
-        }
-    } else {
-        onComplete(false, "User not authenticated")
-    }
-}
-
-

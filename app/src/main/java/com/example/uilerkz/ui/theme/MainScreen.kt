@@ -72,6 +72,7 @@ fun MainScreen() {
             Modifier.padding(innerPadding),
         ) {
             composable(Screen.Login.route) { LoginScreen(navController) }
+            composable(Screen.History.route) { HistoryScreen(navController) }
             composable(Screen.Registration.route) { RegistrationScreen(navController) }
             composable(Screen.Menu.route) { SearchScreen(navController) }
             composable(

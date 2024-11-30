@@ -139,8 +139,17 @@ fun PricingScreen() {
             .fillMaxSize()
             .padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
     ) {
+        Spacer(Modifier.height(20.dp))
+        Text(
+            text = "Pricing",
+            style = TextStyle(
+                fontSize = 40.sp,
+                fontWeight = FontWeight(700),
+                color = Color(0xFF231D4F),
+            )
+        )
+        Spacer(Modifier.height(20.dp))
         if (!authViewModel.checkAuthStatus()) {
             Text(
                 "You need to login",
@@ -153,17 +162,6 @@ fun PricingScreen() {
                 )
             )
         } else {
-            Text(
-                text = "Pricing",
-                style = TextStyle(
-                    fontSize = 40.sp,
-                    fontWeight = FontWeight(700),
-                    color = Color(0xFF231D4F),
-                )
-            )
-            Spacer(Modifier.height(15.dp))
-
-
             plans.forEach { plan ->
                 val (name, price, description) = plan
 
