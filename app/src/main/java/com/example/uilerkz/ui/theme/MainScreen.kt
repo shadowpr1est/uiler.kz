@@ -78,15 +78,14 @@ fun MainScreen() {
             composable(
                 route = "details/{image}/{address}",
                 arguments = listOf(
-                    navArgument("image") { type = NavType.IntType },
+                    navArgument("image") { type = NavType.IntType },  // Make sure this is IntType
                     navArgument("address") { type = NavType.StringType }
                 )
             ) { backStackEntry ->
-                val image = backStackEntry.arguments?.getInt("image") ?: R.drawable.resource_package
-                val address = backStackEntry.arguments?.getString("address") ?: "Unknown Address"
-
-                Log.d("details", "$image $address")
-
+                // Extracting the arguments
+                val image = backStackEntry.arguments?.getInt("image") ?: 0 // getInt() should be used here
+                val address = backStackEntry.arguments?.getString("address") ?: "Default Address"
+                Log.d("images", image.toString()) // Now this should print the correct value
                 DetailsScreen(navController = navController, image = image, address = address)
             }
             composable(Screen.Like.route) { LikedScreen(navController) }

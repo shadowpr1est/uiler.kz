@@ -1,17 +1,12 @@
 package com.example.uilerkz
 
 import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,64 +15,73 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.pager.*
-import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Composable
-fun OnboardingPager() {
+fun OnboardingPager(image: Int) {
     val pagerState = rememberPagerState()
-    val images = listOf(
-        R.drawable.a1,
-        R.drawable.a2,
-        R.drawable.a3,
-        R.drawable.a4
+
+    // Define images for each category
+    val images = mapOf(
+        l1[0] to l1,
+        l2[0] to l2,
+        l3[0] to l3,
+        l4[0] to l4,
+        l5[0] to l5,
+        l6[0] to l6,
+        l7[0] to l7,
     )
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        HorizontalPager(
-            count = images.size,
-            state = pagerState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(350.dp)
-        ) { page ->
-            Image(
-                painter = painterResource(id = images[page]),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+    // Get the images list for the passed `image` key
+    val im = images[image]
+
+    // Ensure `im` is not null and contains images
+    if (im != null) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box{
+            HorizontalPager(
+                count = im.size, // Use the size of the image list for the selected category
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(350.dp)
+            ) { page ->
+                // Displaying the image for the current page
+                Image(
+                    painter = painterResource(id = im[page]),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+
+            }
+
+            // Spacer for some separation between pager and dots
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Dots Indicator stays at the bottom center
+            DotsIndicator(
+                totalDots = im.size, // Number of dots based on the images
+                selectedIndex = pagerState.currentPage,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(top = 10.dp) // Optional padding to avoid overlap with other content
             )
+            }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        DotsIndicator(
-            totalDots = images.size,
-            selectedIndex = pagerState.currentPage,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-
     }
 }
+
 
 @Composable
 fun DotsIndicator(totalDots: Int, selectedIndex: Int, modifier: Modifier = Modifier) {
@@ -97,6 +101,7 @@ fun DotsIndicator(totalDots: Int, selectedIndex: Int, modifier: Modifier = Modif
         }
     }
 }
+
 @Composable
 fun BookingSection(onBook: (String, String, String, Int) -> Unit, image: Int, address: String) {
     val auth = FirebaseAuth.getInstance()
@@ -147,7 +152,9 @@ fun BookingSection(onBook: (String, String, String, Int) -> Unit, image: Int, ad
                         .addOnSuccessListener { document ->
                             if (document.exists()) {
                                 // If bookings already exist, add the new booking to the existing array
-                                val existingBookings = document.get("bookings") as? List<Map<String, Any>> ?: emptyList()
+                                val existingBookings =
+                                    document.get("bookings") as? List<Map<String, Any>>
+                                        ?: emptyList()
                                 val updatedBookings = existingBookings + newBooking
 
                                 // Update the bookings array
@@ -164,10 +171,16 @@ fun BookingSection(onBook: (String, String, String, Int) -> Unit, image: Int, ad
                                     mapOf("bookings" to listOf(newBooking))
                                 )
                                     .addOnSuccessListener {
-                                        Log.d("pricing", "Successfully created bookings field and stored data")
+                                        Log.d(
+                                            "pricing",
+                                            "Successfully created bookings field and stored data"
+                                        )
                                     }
                                     .addOnFailureListener { e ->
-                                        Log.e("pricing", "Error creating bookings field: ${e.message}")
+                                        Log.e(
+                                            "pricing",
+                                            "Error creating bookings field: ${e.message}"
+                                        )
                                     }
                             }
                         }
@@ -291,7 +304,9 @@ fun CustomCalendarWithMonthSelection(onDateSelected: (String) -> Unit) {
 
         // Calendar Grid
         LazyColumn(
-            modifier = Modifier.fillMaxWidth().height(200.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
         ) {
             // Divide the days into rows of 7
             items(days.chunked(7)) { week ->
@@ -307,8 +322,14 @@ fun CustomCalendarWithMonthSelection(onDateSelected: (String) -> Unit) {
                                 .background(Color.LightGray, RoundedCornerShape(50))
                                 .clickable {
                                     val selectedDate =
-                                        "$currentYear-${(currentMonthIndex + 1).toString().padStart(2, '0')}-${
-                                            day.toString().padStart(2, '0')
+                                        "$currentYear-${
+                                            (currentMonthIndex + 1)
+                                                .toString()
+                                                .padStart(2, '0')
+                                        }-${
+                                            day
+                                                .toString()
+                                                .padStart(2, '0')
                                         }"
                                     onDateSelected(selectedDate)
                                 },
@@ -370,7 +391,8 @@ fun DetailsScreen(
                     contentDescription = "Back",
                     modifier = Modifier
                         .clickable { navController.popBackStack() }
-                        .size(24.dp).align(Alignment.CenterStart)
+                        .size(24.dp)
+                        .align(Alignment.CenterStart)
                 )
 
                 Text(
@@ -395,7 +417,7 @@ fun DetailsScreen(
                     .fillMaxWidth()
                     .height(300.dp) // Constrain the height of OnboardingPager
             ) {
-                OnboardingPager()
+                OnboardingPager(image)
             }
 
             Spacer(Modifier.height(16.dp))
@@ -453,12 +475,12 @@ fun DetailsScreen(
                 address = address
             )
 
-            Spacer(Modifier.height(20.dp))
 
             // Additional Information Section (e.g., description)
             Text(
-                text = "This is a cozy apartment located in the heart of the city. Enjoy flexible subscription-based rentals for your convenience.",
+                text = "Whether you're staying for a short visit or an extended stay, this apartment offers a perfect balance of comfort and convenience. \nWith modern amenities, stylish interiors, and a prime location, you'll have everything you need just steps away. ",
                 style = TextStyle(
+                    lineHeight = 22.sp,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Normal,
                     color = Color.Gray
@@ -470,6 +492,7 @@ fun DetailsScreen(
         }
     }
 }
+
 fun toggleFavorite(image: String, address: String, onComplete: (Boolean, String?) -> Unit) {
     val auth = FirebaseAuth.getInstance()
     val firestore = FirebaseFirestore.getInstance()
@@ -478,54 +501,50 @@ fun toggleFavorite(image: String, address: String, onComplete: (Boolean, String?
     if (currentUser != null) {
         val userDocRef = firestore.collection("users").document(currentUser.uid)
 
+        // Fetch user data from Firestore
         userDocRef.get()
             .addOnSuccessListener { document ->
-                val newFavorite = mapOf("image" to image, "address" to address)
-                val existingFavorites = document.get("favorites") as? List<Map<String, String>> ?: emptyList()
+                if (document.exists()) {
+                    val newFavorite = mapOf("image" to image, "address" to address)
+                    val existingFavorites =
+                        document.get("favorites") as? List<Map<String, String>> ?: emptyList()
 
-                // Check if the item is already in the favorites
-                if (existingFavorites.any { it["image"] == image && it["address"] == address }) {
-                    // Remove item from favorites
-                    val updatedFavorites = existingFavorites.filterNot { it["image"] == image && it["address"] == address }
-                    userDocRef.update("favorites", updatedFavorites)
-                        .addOnSuccessListener {
-                            onComplete(false, "Removed from favorites")
-                            // After updating, you may want to reload the favorites data
-                            fetchFavorites { favorites ->
-                                // Handle the updated favorites list
-                                // Update UI state based on the new favorites
-                                // Example: Update `isLiked` state here
+                    // Check if the item is already in the favorites
+                    if (existingFavorites.any { it["image"] == image && it["address"] == address }) {
+                        // Remove the item from favorites if it's already there
+                        val updatedFavorites =
+                            existingFavorites.filterNot { it["image"] == image && it["address"] == address }
+                        userDocRef.update("favorites", updatedFavorites)
+                            .addOnSuccessListener {
+                                onComplete(false, "Removed from favorites")
                             }
-                        }
-                        .addOnFailureListener { e ->
-                            onComplete(false, "Error removing from favorites: ${e.message}")
-                        }
+                            .addOnFailureListener { e ->
+                                onComplete(false, "Error removing from favorites: ${e.message}")
+                            }
+                    } else {
+                        // Add the item to favorites if it's not already there
+                        val updatedFavorites = existingFavorites + newFavorite
+                        userDocRef.update("favorites", updatedFavorites)
+                            .addOnSuccessListener {
+                                onComplete(true, "Added to favorites")
+                            }
+                            .addOnFailureListener { e ->
+                                onComplete(false, "Error adding to favorites: ${e.message}")
+                            }
+                    }
                 } else {
-                    // Add item to favorites
-                    val updatedFavorites = existingFavorites + newFavorite
-                    userDocRef.update("favorites", updatedFavorites)
-                        .addOnSuccessListener {
-                            onComplete(true, "Added to favorites")
-                            // After updating, you may want to reload the favorites data
-                            fetchFavorites { favorites ->
-                                // Handle the updated favorites list
-                                // Update UI state based on the new favorites
-                                // Example: Update `isLiked` state here
-                            }
-                        }
-                        .addOnFailureListener { e ->
-                            onComplete(false, "Error adding to favorites: ${e.message}")
-                        }
+                    // Handle the case where the user document does not exist
+                    onComplete(false, "User document does not exist")
                 }
             }
             .addOnFailureListener { e ->
                 onComplete(false, "Error fetching user data: ${e.message}")
             }
     } else {
+        // Handle the case when the user is not logged in
         onComplete(false, "No user logged in")
     }
 }
-
 
 fun fetchFavorites(onComplete: (List<Map<String, String>>) -> Unit) {
     val auth = FirebaseAuth.getInstance()
@@ -539,7 +558,9 @@ fun fetchFavorites(onComplete: (List<Map<String, String>>) -> Unit) {
         userRef.get()
             .addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
-                    val favoritesList = documentSnapshot.get("favorites") as? List<Map<String, String>> ?: emptyList()
+                    val favoritesList =
+                        documentSnapshot.get("favorites") as? List<Map<String, String>>
+                            ?: emptyList()
                     onComplete(favoritesList)
                 } else {
                     Log.e("pricing", "User document does not exist.")

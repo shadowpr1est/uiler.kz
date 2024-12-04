@@ -109,7 +109,7 @@ fun TarifCard(
             )
         }
     }
-    Spacer(Modifier.height(25.dp))
+    Spacer(Modifier.height(18.dp))
 }
 
 @Composable
@@ -149,7 +149,7 @@ fun PricingScreen() {
                 color = Color(0xFF231D4F),
             )
         )
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(10.dp))
         if (!authViewModel.checkAuthStatus()) {
             Text(
                 "You need to login",
